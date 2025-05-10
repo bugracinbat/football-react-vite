@@ -11,16 +11,20 @@ import {
   useTheme,
   LinearProgress,
   Tooltip,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import { getCompetitions, getScorers } from "../services/api";
 import type { Competition, Scorer } from "../types/football";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import { commonAnimationStyles } from "../utils/animations";
 
 const Statistics = () => {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [selectedCompetition, setSelectedCompetition] = useState<string>("");
   const [scorers, setScorers] = useState<Scorer[]>([]);
+  const [statType, setStatType] = useState<"goals" | "assists">("goals");
   const theme = useTheme();
 
   useEffect(() => {
@@ -51,8 +55,18 @@ const Statistics = () => {
     fetchTopScorers();
   }, [selectedCompetition]);
 
-  const getMaxGoals = () => {
-    return Math.max(...scorers.map((scorer) => scorer.goals));
+  const getMaxValue = () => {
+    return Math.max(
+      ...scorers.map((scorer) =>
+        statType === "goals" ? scorer.goals : scorer.assists
+      )
+    );
+  };
+
+  const getSortedScorers = () => {
+    return [...scorers].sort((a, b) =>
+      statType === "goals" ? b.goals - a.goals : b.assists - a.assists
+    );
   };
 
   return (
@@ -86,41 +100,84 @@ const Statistics = () => {
           color="text.secondary"
           sx={{ maxWidth: "800px", mx: "auto", px: 2 }}
         >
-          Track top scorers and player statistics
+          Track top performers and player statistics
         </Typography>
       </Box>
 
-      <FormControl
-        fullWidth
+      <Box
         sx={{
+          display: "flex",
+          gap: 2,
           mb: 4,
-          ...commonAnimationStyles.slideIn,
-          "& .MuiOutlinedInput-root": {
-            background: "rgba(255, 255, 255, 0.05)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            "&:hover": {
-              background: "rgba(255, 255, 255, 0.08)",
-            },
-          },
+          flexDirection: { xs: "column", sm: "row" },
         }}
       >
-        <InputLabel>Select Competition</InputLabel>
-        <Select
-          value={selectedCompetition}
-          label="Select Competition"
-          onChange={(e) => setSelectedCompetition(e.target.value)}
+        <FormControl
+          fullWidth
+          sx={{
+            ...commonAnimationStyles.slideIn,
+            "& .MuiOutlinedInput-root": {
+              background: "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              "&:hover": {
+                background: "rgba(255, 255, 255, 0.08)",
+              },
+            },
+          }}
         >
-          {competitions.map((competition) => (
-            <MenuItem key={competition.id} value={competition.id.toString()}>
-              {competition.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          <InputLabel>Select Competition</InputLabel>
+          <Select
+            value={selectedCompetition}
+            label="Select Competition"
+            onChange={(e) => setSelectedCompetition(e.target.value)}
+          >
+            {competitions.map((competition) => (
+              <MenuItem key={competition.id} value={competition.id.toString()}>
+                {competition.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <ToggleButtonGroup
+          value={statType}
+          exclusive
+          onChange={(_, newValue) => newValue && setStatType(newValue)}
+          sx={{
+            ...commonAnimationStyles.slideIn,
+            animationDelay: "0.1s",
+            "& .MuiToggleButton-root": {
+              background: "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "text.primary",
+              "&:hover": {
+                background: "rgba(255, 255, 255, 0.08)",
+              },
+              "&.Mui-selected": {
+                background: "rgba(0, 112, 243, 0.1)",
+                color: "primary.main",
+                "&:hover": {
+                  background: "rgba(0, 112, 243, 0.15)",
+                },
+              },
+            },
+          }}
+        >
+          <ToggleButton value="goals">
+            <SportsSoccerIcon sx={{ mr: 1 }} />
+            Goals
+          </ToggleButton>
+          <ToggleButton value="assists">
+            <EmojiEventsIcon sx={{ mr: 1 }} />
+            Assists
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {scorers.map((scorer, index) => (
+        {getSortedScorers().map((scorer, index) => (
           <Card
             key={scorer.player.id}
             sx={{
@@ -188,18 +245,25 @@ const Statistics = () => {
                       ...commonAnimationStyles.gradient,
                     }}
                   >
-                    {scorer.goals} goals
+                    {statType === "goals" ? scorer.goals : scorer.assists}{" "}
+                    {statType}
                   </Typography>
                 </Box>
               </Box>
               <Tooltip
                 title={`${
-                  (scorer.goals / getMaxGoals()) * 100
-                }% of leader's goals`}
+                  ((statType === "goals" ? scorer.goals : scorer.assists) /
+                    getMaxValue()) *
+                  100
+                }% of leader's ${statType}`}
               >
                 <LinearProgress
                   variant="determinate"
-                  value={(scorer.goals / getMaxGoals()) * 100}
+                  value={
+                    ((statType === "goals" ? scorer.goals : scorer.assists) /
+                      getMaxValue()) *
+                    100
+                  }
                   sx={{
                     height: 8,
                     borderRadius: 4,
@@ -232,18 +296,32 @@ const Statistics = () => {
                 >
                   Team: {scorer.team.name}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    transition: "transform 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "translateX(-5px)",
-                    },
-                  }}
-                >
-                  Goals: {scorer.goals}
-                </Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      transition: "transform 0.2s ease-in-out",
+                      "&:hover": {
+                        transform: "translateX(-5px)",
+                      },
+                    }}
+                  >
+                    Goals: {scorer.goals}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      transition: "transform 0.2s ease-in-out",
+                      "&:hover": {
+                        transform: "translateX(-5px)",
+                      },
+                    }}
+                  >
+                    Assists: {scorer.assists}
+                  </Typography>
+                </Box>
               </Box>
             </CardContent>
           </Card>
