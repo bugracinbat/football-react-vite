@@ -1,7 +1,6 @@
 import {
   Container,
   Typography,
-  Grid,
   Box,
   Card,
   CardContent,
@@ -103,8 +102,14 @@ const Home = () => {
         </Typography>
       </Box>
 
-      <Grid container spacing={4}>
-        <Grid xs={12} md={8}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4,
+        }}
+      >
+        <Box sx={{ flex: { md: "2" } }}>
           <Card
             sx={{
               background: "rgba(255, 255, 255, 0.05)",
@@ -145,33 +150,27 @@ const Home = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid xs={12} md={4}>
-          <Grid container spacing={2}>
-            <Grid xs={12}>
-              <QuickLinkCard
-                icon={SportsSoccerIcon}
-                title="Live Matches"
-                description="Track ongoing matches and get real-time updates on scores and statistics"
-              />
-            </Grid>
-            <Grid xs={12}>
-              <QuickLinkCard
-                icon={TrendingUpIcon}
-                title="Statistics"
-                description="Explore detailed player and team statistics, including goals, assists, and more"
-              />
-            </Grid>
-            <Grid xs={12}>
-              <QuickLinkCard
-                icon={GroupsIcon}
-                title="Team Analysis"
-                description="Dive deep into team performance, formations, and tactical analysis"
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+        </Box>
+        <Box sx={{ flex: { md: "1" } }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <QuickLinkCard
+              icon={SportsSoccerIcon}
+              title="Live Matches"
+              description="Track ongoing matches and get real-time updates on scores and statistics"
+            />
+            <QuickLinkCard
+              icon={TrendingUpIcon}
+              title="Statistics"
+              description="Explore detailed player and team statistics, including goals, assists, and more"
+            />
+            <QuickLinkCard
+              icon={GroupsIcon}
+              title="Team Analysis"
+              description="Dive deep into team performance, formations, and tactical analysis"
+            />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
