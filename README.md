@@ -1,4 +1,4 @@
-# Football React Vite
+# ⚽ Football Pulse
 
 A modern football tracking application built with React, Vite, and Material-UI, featuring a sleek Vercel-inspired design.
 
