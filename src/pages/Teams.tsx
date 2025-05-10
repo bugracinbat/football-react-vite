@@ -14,6 +14,7 @@ import {
 import { getCompetitions, getTeams } from "../services/api";
 import type { Competition, Team } from "../types/football";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import { commonAnimationStyles } from "../utils/animations";
 
 const Teams = () => {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -50,15 +51,16 @@ const Teams = () => {
   }, [selectedCompetition]);
 
   return (
-    <Box>
+    <Box sx={{ ...commonAnimationStyles.fadeIn }}>
       <Box
         sx={{
           textAlign: "center",
           mb: 6,
-          background:
-            "linear-gradient(45deg, rgba(0,112,243,0.1), rgba(121,40,202,0.1))",
           py: 6,
           borderRadius: 4,
+          ...commonAnimationStyles.gradient,
+          background:
+            "linear-gradient(45deg, rgba(0,112,243,0.1), rgba(121,40,202,0.1))",
         }}
       >
         <Typography
@@ -67,9 +69,7 @@ const Teams = () => {
           gutterBottom
           sx={{
             fontWeight: 800,
-            background: "linear-gradient(45deg, #0070f3, #7928ca)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            ...commonAnimationStyles.gradient,
             mb: 2,
           }}
         >
@@ -89,6 +89,7 @@ const Teams = () => {
         fullWidth
         sx={{
           mb: 4,
+          ...commonAnimationStyles.slideIn,
           "& .MuiOutlinedInput-root": {
             background: "rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(10px)",
@@ -114,7 +115,7 @@ const Teams = () => {
       </FormControl>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-        {teams.map((team) => (
+        {teams.map((team, index) => (
           <Card
             key={team.id}
             sx={{
@@ -128,9 +129,12 @@ const Teams = () => {
               border: "1px solid rgba(255, 255, 255, 0.1)",
               transition:
                 "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+              animation: `${commonAnimationStyles.scaleIn.animation}`,
+              animationDelay: `${index * 0.1}s`,
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                ...commonAnimationStyles.glow,
               },
             }}
           >
@@ -143,6 +147,10 @@ const Teams = () => {
                 objectFit: "contain",
                 p: 2,
                 background: "rgba(255, 255, 255, 0.03)",
+                transition: "transform 0.3s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                },
               }}
             />
             <CardContent>
@@ -155,6 +163,7 @@ const Teams = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  ...commonAnimationStyles.gradient,
                 }}
               >
                 {team.name}

@@ -14,6 +14,7 @@ import {
 import { getCompetitions, getMatches } from "../services/api";
 import type { Competition, Match } from "../types/football";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import { commonAnimationStyles } from "../utils/animations";
 
 const Matches = () => {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -63,15 +64,16 @@ const Matches = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ ...commonAnimationStyles.fadeIn }}>
       <Box
         sx={{
           textAlign: "center",
           mb: 6,
-          background:
-            "linear-gradient(45deg, rgba(0,112,243,0.1), rgba(121,40,202,0.1))",
           py: 6,
           borderRadius: 4,
+          ...commonAnimationStyles.gradient,
+          background:
+            "linear-gradient(45deg, rgba(0,112,243,0.1), rgba(121,40,202,0.1))",
         }}
       >
         <Typography
@@ -80,9 +82,7 @@ const Matches = () => {
           gutterBottom
           sx={{
             fontWeight: 800,
-            background: "linear-gradient(45deg, #0070f3, #7928ca)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            ...commonAnimationStyles.gradient,
             mb: 2,
           }}
         >
@@ -102,6 +102,7 @@ const Matches = () => {
         fullWidth
         sx={{
           mb: 4,
+          ...commonAnimationStyles.slideIn,
           "& .MuiOutlinedInput-root": {
             background: "rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(10px)",
@@ -127,7 +128,7 @@ const Matches = () => {
       </FormControl>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-        {matches.map((match) => (
+        {matches.map((match, index) => (
           <Card
             key={match.id}
             sx={{
@@ -141,9 +142,12 @@ const Matches = () => {
               border: "1px solid rgba(255, 255, 255, 0.1)",
               transition:
                 "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+              animation: `${commonAnimationStyles.scaleIn.animation}`,
+              animationDelay: `${index * 0.1}s`,
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+                ...commonAnimationStyles.glow,
               },
             }}
           >
@@ -159,14 +163,26 @@ const Matches = () => {
                 <Typography
                   variant="h6"
                   component="div"
-                  sx={{ fontWeight: 600 }}
+                  sx={{
+                    fontWeight: 600,
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateX(5px)",
+                    },
+                  }}
                 >
                   {match.homeTeam.name}
                 </Typography>
                 <Typography
                   variant="h6"
                   component="div"
-                  sx={{ fontWeight: 600 }}
+                  sx={{
+                    fontWeight: 600,
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateX(-5px)",
+                    },
+                  }}
                 >
                   {match.awayTeam.name}
                 </Typography>
@@ -180,6 +196,7 @@ const Matches = () => {
                   py: 2,
                   background: "rgba(255, 255, 255, 0.03)",
                   borderRadius: 1,
+                  ...commonAnimationStyles.pulse,
                 }}
               >
                 <Typography
@@ -187,7 +204,7 @@ const Matches = () => {
                   component="div"
                   sx={{
                     fontWeight: 700,
-                    color: theme.palette.primary.main,
+                    ...commonAnimationStyles.gradient,
                   }}
                 >
                   {match.score.fullTime.home !== null &&
@@ -214,6 +231,10 @@ const Matches = () => {
                     background: "rgba(255, 255, 255, 0.05)",
                     backdropFilter: "blur(10px)",
                     border: "1px solid rgba(255, 255, 255, 0.1)",
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "scale(1.1)",
+                    },
                   }}
                 />
               </Box>
