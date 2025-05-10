@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -11,14 +9,17 @@ import {
   FormControl,
   InputLabel,
   Box,
+  useTheme,
 } from "@mui/material";
 import { getCompetitions, getTeams } from "../services/api";
 import type { Competition, Team } from "../types/football";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
 const Teams = () => {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [selectedCompetition, setSelectedCompetition] = useState<string>("");
   const [teams, setTeams] = useState<Team[]>([]);
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchCompetitions = async () => {
@@ -49,12 +50,55 @@ const Teams = () => {
   }, [selectedCompetition]);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Teams
-      </Typography>
+    <Box>
+      <Box
+        sx={{
+          textAlign: "center",
+          mb: 6,
+          background:
+            "linear-gradient(45deg, rgba(0,112,243,0.1), rgba(121,40,202,0.1))",
+          py: 6,
+          borderRadius: 4,
+        }}
+      >
+        <Typography
+          variant="h2"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 800,
+            background: "linear-gradient(45deg, #0070f3, #7928ca)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            mb: 2,
+          }}
+        >
+          Teams
+        </Typography>
+        <Typography
+          variant="h5"
+          component="h2"
+          color="text.secondary"
+          sx={{ maxWidth: "800px", mx: "auto", px: 2 }}
+        >
+          Explore teams from various competitions and leagues
+        </Typography>
+      </Box>
 
-      <FormControl fullWidth sx={{ mb: 4 }}>
+      <FormControl
+        fullWidth
+        sx={{
+          mb: 4,
+          "& .MuiOutlinedInput-root": {
+            background: "rgba(255, 255, 255, 0.05)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&:hover": {
+              background: "rgba(255, 255, 255, 0.08)",
+            },
+          },
+        }}
+      >
         <InputLabel>Select Competition</InputLabel>
         <Select
           value={selectedCompetition}
@@ -69,21 +113,53 @@ const Teams = () => {
         </Select>
       </FormControl>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
         {teams.map((team) => (
-          <Grid item xs={12} sm={6} md={4} key={team.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={team.crest}
-                alt={team.name}
-                sx={{ objectFit: "contain", p: 2 }}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h6" component="div">
-                  {team.name}
-                </Typography>
+          <Card
+            key={team.id}
+            sx={{
+              flex: {
+                xs: "1 1 100%",
+                sm: "1 1 calc(50% - 12px)",
+                md: "1 1 calc(33.333% - 16px)",
+              },
+              background: "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              transition:
+                "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+              },
+            }}
+          >
+            <CardMedia
+              component="img"
+              height="140"
+              image={team.crest}
+              alt={team.name}
+              sx={{
+                objectFit: "contain",
+                p: 2,
+                background: "rgba(255, 255, 255, 0.03)",
+              }}
+            />
+            <CardContent>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="div"
+                sx={{
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                {team.name}
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 <Typography variant="body2" color="text.secondary">
                   Founded: {team.founded}
                 </Typography>
@@ -93,12 +169,12 @@ const Teams = () => {
                 <Typography variant="body2" color="text.secondary">
                   Colors: {team.clubColors}
                 </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </CardContent>
+          </Card>
         ))}
-      </Grid>
-    </Container>
+      </Box>
+    </Box>
   );
 };
 
