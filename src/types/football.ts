@@ -14,11 +14,36 @@ export interface Team {
 export interface Player {
   id: number;
   name: string;
+  photo: string;
   position: string;
-  dateOfBirth: string;
-  nationality: string;
-  shirtNumber: number;
-  lastUpdated: string;
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  statistics: {
+    goals: number;
+    assists: number;
+    minutesPlayed: number;
+    appearances: number;
+    yellowCards: number;
+    redCards: number;
+    shots: number;
+    shotsOnTarget: number;
+    passes: number;
+    passAccuracy: number;
+    tackles: number;
+    interceptions: number;
+    saves?: number;
+    cleanSheets?: number;
+  };
+  achievements?: string[];
+  career?: {
+    team: string;
+    period: string;
+    role: string;
+    achievements: string;
+  }[];
 }
 
 export interface Match {

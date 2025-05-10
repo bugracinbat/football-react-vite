@@ -12,12 +12,23 @@ import {
   ListItem,
   ListItemText,
   useMediaQuery,
+  Menu,
+  MenuItem,
+  TextField,
+  InputAdornment,
+  ListItemAvatar,
+  Avatar,
+  Paper,
 } from "@mui/material";
-import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
 import { keyframes } from "@mui/system";
+import { commonAnimationStyles } from "../utils/animations";
+import { getPlayerDetails, searchPlayers } from "../services/api";
+import type { Player } from "../types/football";
 
 const gradientAnimation = keyframes`
   0% {
@@ -72,6 +83,13 @@ const Navbar = () => {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Player[]>([]);
+  const [searchAnchor, setSearchAnchor] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -84,6 +102,44 @@ const Navbar = () => {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchor(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuAnchor(null);
+  };
+
+  const handleSearch = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+
+    if (query.length >= 2) {
+      try {
+        const response = await searchPlayers(query);
+        setSearchResults(response.data);
+        setSearchAnchor(event.currentTarget);
+      } catch (error) {
+        console.error("Error searching players:", error);
+        setSearchResults([]);
+      }
+    } else {
+      setSearchResults([]);
+      setSearchAnchor(null);
+    }
+  };
+
+  const handleSearchClose = () => {
+    setSearchAnchor(null);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  const handlePlayerSelect = (playerId: number) => {
+    navigate(`/player/${playerId}`);
+    handleSearchClose();
   };
 
   const drawer = (
@@ -194,7 +250,7 @@ const Navbar = () => {
               color="inherit"
               aria-label="open drawer"
               edge="start"
-              onClick={handleDrawerToggle}
+              onClick={handleMobileMenuOpen}
               sx={{
                 ml: "auto",
                 "&:hover": {
@@ -275,6 +331,136 @@ const Navbar = () => {
       >
         {drawer}
       </Drawer>
+
+      <Box sx={{ width: 300, position: "relative" }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search players..."
+          value={searchQuery}
+          onChange={handleSearch}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              background: "rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 2,
+              "&:hover": {
+                background: "rgba(255, 255, 255, 0.08)",
+              },
+              "&.Mui-focused": {
+                background: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: "text.secondary" }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+        {searchResults.length > 0 && (
+          <Paper
+            sx={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              mt: 1,
+              background: "rgba(0, 0, 0, 0.9)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: 2,
+              zIndex: 1000,
+              maxHeight: 400,
+              overflow: "auto",
+            }}
+          >
+            <List>
+              {searchResults.map((player) => (
+                <ListItem
+                  key={player.id}
+                  onClick={() => handlePlayerSelect(player.id)}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": {
+                      background: "rgba(255, 255, 255, 0.05)",
+                    },
+                  }}
+                >
+                  <ListItemAvatar>
+                    <Avatar src={player.photo} alt={player.name} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={player.name}
+                    secondary={`${player.team.name} • ${player.position}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+        )}
+      </Box>
+
+      <Menu
+        anchorEl={mobileMenuAnchor}
+        open={Boolean(mobileMenuAnchor)}
+        onClose={handleMobileMenuClose}
+        sx={{
+          "& .MuiPaper-root": {
+            background: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: 2,
+          },
+        }}
+      >
+        <MenuItem
+          component={RouterLink}
+          to="/teams"
+          onClick={handleMobileMenuClose}
+          sx={{
+            color: "text.primary",
+            "&:hover": {
+              background: "rgba(255, 255, 255, 0.05)",
+            },
+          }}
+        >
+          Teams
+        </MenuItem>
+        <MenuItem
+          component={RouterLink}
+          to="/matches"
+          onClick={handleMobileMenuClose}
+          sx={{
+            color: "text.primary",
+            "&:hover": {
+              background: "rgba(255, 255, 255, 0.05)",
+            },
+          }}
+        >
+          Matches
+        </MenuItem>
+        <MenuItem
+          component={RouterLink}
+          to="/statistics"
+          onClick={handleMobileMenuClose}
+          sx={{
+            color: "text.primary",
+            "&:hover": {
+              background: "rgba(255, 255, 255, 0.05)",
+            },
+          }}
+        >
+          Statistics
+        </MenuItem>
+      </Menu>
     </AppBar>
   );
 };
